@@ -37,7 +37,7 @@ export function PairRow({
           type="date"
           value={pair.from}
           onChange={(e) => onUpdate(pair.id, "from", e.target.value)}
-          className="w-full sm:w-auto flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full sm:w-auto flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:[color-scheme:dark]"
         />
 
         <span className="text-gray-400 dark:text-gray-500 text-sm hidden sm:block">
@@ -48,7 +48,7 @@ export function PairRow({
           type="date"
           value={pair.to}
           onChange={(e) => onUpdate(pair.id, "to", e.target.value)}
-          className="w-full sm:w-auto flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full sm:w-auto flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:[color-scheme:dark]"
         />
       </div>
 

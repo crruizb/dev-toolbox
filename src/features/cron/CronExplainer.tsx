@@ -28,8 +28,6 @@ const EXAMPLES = [
   { expr: "30 8 * * 1",  en: "Every Monday at 08:30",              es: "Cada lunes a las 08:30" },
 ];
 
-// ─── Parser helpers ───────────────────────────────────────────────────────────
-
 function pad(n: number) {
   return String(n).padStart(2, "0");
 }
@@ -156,8 +154,6 @@ function parseCron(expr: string, ctx: CronCtx): string | null {
   const monthPhrase = parseField(rawMonth, "month", ctx);
   const dowPhrase = parseField(rawDow, "dow", ctx);
 
-  // ── Build human sentence ───────────────────────────────────────────────────
-
   // "* * * * *" → "Every minute"
   if (!minPhrase && !hourPhrase && !domPhrase && !monthPhrase && !dowPhrase) {
     return t("cronEveryMinute");
@@ -205,8 +201,6 @@ function parseCron(expr: string, ctx: CronCtx): string | null {
 
   return [time, dayStr, monthStr].filter(Boolean).join(", ");
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function CronExplainer({ t, lang }: Props) {
   const [expr, setExpr] = useState("");
