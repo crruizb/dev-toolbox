@@ -1,5 +1,7 @@
+import { useState } from "react";
 import type { TranslationKey } from "../../i18n";
 import { PairRow } from "./PairRow";
+import type { Pair } from "./usePairs";
 import { usePairs } from "./usePairs";
 
 function daysBetween(a: string, b: string): number | null {
@@ -8,12 +10,46 @@ function daysBetween(a: string, b: string): number | null {
   return Math.floor(diff / 86_400_000);
 }
 
+const DATE_PAIR_RE =
+  /^(\d{2})[-/](\d{2})[-/](\d{4})\s*-\s*(\d{2})[-/](\d{2})[-/](\d{4})$/;
+
+function parseBulkText(text: string): Pair[] {
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .flatMap((line) => {
+      const m = line.match(DATE_PAIR_RE);
+      if (!m) return [];
+      const [, d1, mo1, y1, d2, mo2, y2] = m;
+      return [
+        {
+          id: crypto.randomUUID(),
+          from: `${y1}-${mo1}-${d1}`,
+          to: `${y2}-${mo2}-${d2}`,
+        },
+      ];
+    });
+}
+
 interface Props {
   t: (key: TranslationKey) => string;
 }
 
 export function DateDiff({ t }: Props) {
-  const { pairs, addPair, removePair, updatePair } = usePairs();
+  const { pairs, addPair, removePair, updatePair, replacePairs } = usePairs();
+  const [bulkText, setBulkText] = useState("");
+  const [bulkError, setBulkError] = useState(false);
+
+  function handleLoadPairs() {
+    const parsed = parseBulkText(bulkText);
+    if (parsed.length === 0) {
+      setBulkError(true);
+      return;
+    }
+    setBulkError(false);
+    replacePairs(parsed);
+  }
 
   const total = pairs.reduce((sum, p) => {
     const d = daysBetween(p.from, p.to);
@@ -29,6 +65,34 @@ export function DateDiff({ t }: Props) {
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
           {t("subtitle")}
         </p>
+      </div>
+
+      <div className="mt-6">
+        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+          Bulk input
+        </p>
+        <textarea
+          value={bulkText}
+          onChange={(e) => {
+            setBulkText(e.target.value);
+            setBulkError(false);
+          }}
+          rows={4}
+          placeholder={"dd-mm-yyyy - dd-mm-yyyy\ndd/mm/yyyy - dd/mm/yyyy"}
+          className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-800 dark:text-gray-100 px-3 py-2.5 font-mono placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+        />
+        {bulkError && (
+          <p className="mt-1 text-xs text-red-500">
+            No valid date pairs found. Use dd-mm-yyyy - dd-mm-yyyy or dd/mm/yyyy
+            - dd/mm/yyyy.
+          </p>
+        )}
+        <button
+          onClick={handleLoadPairs}
+          className="cursor-pointer mt-2 mb-8 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors"
+        >
+          Load pairs
+        </button>
       </div>
 
       <div className="flex flex-col gap-3">

@@ -44,5 +44,9 @@ export function usePairs() {
     );
   }
 
-  return { pairs, addPair, removePair, updatePair };
+  function replacePairs(newPairs: Pair[]) {
+    setPairs(newPairs);
+  }
+
+  return { pairs, addPair, removePair, updatePair, replacePairs };
 }
