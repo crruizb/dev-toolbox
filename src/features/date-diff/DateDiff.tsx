@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { TranslationKey } from "../../i18n";
 import { PairRow } from "./PairRow";
 import type { Pair } from "./usePairs";
@@ -12,6 +12,31 @@ function daysBetween(a: string, b: string): number | null {
 
 const DATE_PAIR_RE =
   /^(\d{2})[-/](\d{2})[-/](\d{4})\s*-\s*(\d{2})[-/](\d{2})[-/](\d{4})$/;
+
+const BULK_STORAGE_KEY = "date-pairs-bulk";
+
+function isoToDisplay(iso: string): string {
+  const [y, mo, d] = iso.split("-");
+  return `${d}-${mo}-${y}`;
+}
+
+function loadBulkText(): string {
+  try {
+    const saved = localStorage.getItem(BULK_STORAGE_KEY);
+    if (saved !== null) return saved;
+    const raw = localStorage.getItem("date-pairs");
+    if (raw) {
+      const pairs = JSON.parse(raw) as Pair[];
+      const lines = pairs
+        .filter((p) => p.from && p.to)
+        .map((p) => `${isoToDisplay(p.from)} - ${isoToDisplay(p.to)}`);
+      return lines.join("\n");
+    }
+  } catch {
+    // ignore
+  }
+  return "";
+}
 
 function parseBulkText(text: string): Pair[] {
   return text
@@ -38,8 +63,12 @@ interface Props {
 
 export function DateDiff({ t }: Props) {
   const { pairs, addPair, removePair, updatePair, replacePairs } = usePairs();
-  const [bulkText, setBulkText] = useState("");
+  const [bulkText, setBulkText] = useState(loadBulkText);
   const [bulkError, setBulkError] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem(BULK_STORAGE_KEY, bulkText);
+  }, [bulkText]);
 
   function handleLoadPairs() {
     const parsed = parseBulkText(bulkText);
